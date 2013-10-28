@@ -7,13 +7,15 @@ import Data.Bits
 
 {-	Visual 	-}
 
-represent :: String -> IO ()
-represent str = (putStr . format) str
+represent :: Integer -> Integer -> IO ()
+represent b str = (putStr . format) xstr
 	where format x = "[ " ++ x ++ " ]\n"
+              xstr = showSingleAtBase b str
 
-representL :: [String] -> IO () 
-representL xs = mapM_ (putStr . format) xs
-	where format x = "[ " ++ x ++ " ]\n" 
+representL :: Integer -> [Integer] -> IO () 
+representL b xs = mapM_ (putStr . format) xlis
+	where format x = "[ " ++ x ++ " ]\n"
+              xlis = showAtBaseL b xs
 
 showSingleAtBase :: Integer -> Integer -> String
 showSingleAtBase b x = showIntAtBase b intToDigit x ""

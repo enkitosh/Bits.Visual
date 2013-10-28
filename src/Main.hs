@@ -6,6 +6,11 @@ import           Visual
 -- | The main entry point.
 main :: IO ()
 main = do
+    let x   = 144 :: Integer
+    -- Represent single number as Hex
+    -- represent :: base -> [Integer] -> [Result :: String]
+    represent 16 x
+    --Operate on a list
     let lis = [201..220 :: Integer]
-    representL $ showWithNrOfBitsL 8 $ showAtBaseL 2 lis
+    representL 2 lis
     putStrLn "Done"
