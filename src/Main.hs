@@ -11,6 +11,6 @@ main = do
     -- represent :: base -> Integer -> Result :: String
     represent 16 x
     --Operate on a list
-    let lis = [201..220 :: Integer]
+    let lis = [201..210 :: Integer]
     representL 2 lis
     putStrLn "Done"

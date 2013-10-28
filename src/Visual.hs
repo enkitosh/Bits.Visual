@@ -48,9 +48,3 @@ showWithNrOfBitsL n xs = map (\x -> fill (sd x n)  ++ x) xid
 -- element (if any) to map against
 bitL :: Bits a => (t -> a -> b) -> [a] -> t -> [b]
 bitL f xs d =  map((f) d) xs
-
-
--- Convert binary representation of strings to Integers
-cnvrtBinL :: [String] -> [Integer]
-cnvrtBinL [] = [] 
-cnvrtBinL xs = map read xs
