@@ -8,7 +8,7 @@ main :: IO ()
 main = do
     let x   = 144 :: Integer
     -- Represent single number as Hex
-    -- represent :: base -> [Integer] -> [Result :: String]
+    -- represent :: base -> Integer -> Result :: String
     represent 16 x
     --Operate on a list
     let lis = [201..220 :: Integer]
