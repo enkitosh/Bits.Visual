@@ -12,7 +12,9 @@ Represent single decimal number in base 16
     >>> [ 14 ] : 20
     
 Console prints out [ number^base ] : Original Value
+
 This can be handy when printing out lists
+
 Use any of the shortcut functions 
 
     ...(b8L, b16L, b32L) for different byte representation
