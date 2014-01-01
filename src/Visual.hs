@@ -11,14 +11,14 @@ import Data.Bits
 
 -- | ByteSize determines how many visual bits
 --   used to represent an Integer
-data ByteSize  = Bit8  | Bit16  | Bit32      deriving Show
+data ByteSize  = Bit8  | Bit16  | Bit32 deriving Show
 
--- | Base ---------------------------
+-- | Bases---------------------------
 data Base      = Binary | 
                  Dec    | 
                  Hex    | 
                  Oct    
-                 deriving Show
+                 deriving (Show, Eq)
 -------------------------------------
 
 -- | ShowBit. data type for visual representation
@@ -43,26 +43,46 @@ getBase Hex    = 16
 -- The default ShowBit value
 -- Takes an Integer x and converts to binary
 -- Shows with 8 bits representation
-defShowBit :: Integer -> ShowBit
-defShowBit x = ShowBit x (Just Bit8) Binary
+defShowBit :: ShowBit
+defShowBit  = ShowBit 0 (Just Bit8) Binary
 ---------------------------------------
+--represent
+--we use this function as
+--base for other functions
+represent :: ShowBit -> String
+represent sb = do
+  format xstr
+	where format x    = "[ " ++ zbit ++ x ++ " ]" ++ " : " ++ (show (nr sb))
+              xstr    = showSingleAtBase (getBase(base sb)) (nr sb)
+              zbit    = fill (zeroOut - (length xstr))
+              zeroOut = case(btSz sb) of
+                        Just Bit8  -> 8
+                        Just Bit16 -> 16
+                        Just Bit32 -> 32
+                        Nothing    -> 0
 
--- bitsIO, gets a value to represent
--- and a showBit (Example: bitsIO 1 Bit8 Dec >>> [00000001])
-bitsIO :: ShowBit -> IO ()
-bitsIO sb = represent (getBase (base sb)) (nr sb)
+reprInt :: ShowBit -> IO ()
+reprInt sb = putStrLn $ represent sb
 
-represent :: Integer -> Integer -> IO ()
-represent b str = (putStr . format) xstr
-	where format x = "[ " ++ x ++ " ]\n"
-              xstr = showSingleAtBase b str
+reprSingle :: Integer -> Base -> IO ()
+reprSingle i b 
+  | b == Binary = reprInt $ ShowBit i (Just Bit8) b
+  | otherwise   = reprInt $ ShowBit i Nothing b
 
--- base - list -> result IO()
--- for the moment, call replist
-representL :: Integer -> [Integer] -> IO () 
-representL b xs = mapM_ (putStr . format) xlis
-	where format x = "[ " ++ x ++ " ]\n"
-              xlis = showAtBaseL b xs
+-- Construct a list of bits
+constructL :: [Integer] -> ShowBit -> [String]
+constructL [] _ = [] 
+constructL (x:xs) sb = represent (ShowBit x
+                                 (btSz sb)
+                                 (base sb)) : constructL xs sb
+
+-- represent a binary list, default behaviour
+-- shows 8 bits at a time..
+representLdef :: [Integer] -> IO ()
+representLdef xs = mapM_ putStrLn $ constructL xs defShowBit
+
+representL :: [Integer] -> ShowBit -> IO ()
+representL xs sb = mapM_ putStrLn $ constructL xs sb
 
 showSingleAtBase :: Integer -> Integer -> String
 showSingleAtBase b x = showIntAtBase b intToDigit x ""
@@ -71,28 +91,38 @@ showSingleAtBase b x = showIntAtBase b intToDigit x ""
 showAtBaseL :: Integer -> [Integer] -> [String]
 showAtBaseL b = map (\x -> showIntAtBase b intToDigit x "")
 
-sd :: String -> Int -> Int
-sd str n = n - length str
-
 fill :: Int -> String
-fill n = concat (take n $ repeat "0") 
+fill n = replicate n '0'
 
+printBit :: ShowBit -> IO ()
+printBit b = putStrLn $ represent b
 
--- This is to return fixed length of bits
-showWithNrOfBits :: Int -> String -> String
-showWithNrOfBits n xs = fill(sd xs n) ++ xs
+{-Bunch of wrappers-}
 
-showWithNrOfBitsL :: Int -> [String] -> [String]
-showWithNrOfBitsL n xs = map (\x -> fill (sd x n)  ++ x) xid
-	where xid = xs
+b8 :: Integer -> IO ()
+b8 b = printBit $ ShowBit b (Just Bit8) Binary
 
+b16 :: Integer -> IO ()
+b16 b = printBit $ ShowBit b (Just Bit16) Binary
+
+b32 :: Integer -> IO ()
+b32 b = printBit $ ShowBit b (Just Bit32) Binary
+
+b8L :: [Integer] -> IO ()
+b8L b = representL b $ ShowBit 0 (Just Bit8) Binary
+
+b16L :: [Integer] -> IO ()
+b16L b = representL b $ ShowBit 0 (Just Bit16) Binary
+
+b32L :: [Integer] -> IO ()
+b32L b = representL b $ ShowBit 0 (Just Bit32) Binary
 
 {-   Helpers   -}
 
 -- Perform bit operation on a list
 -- function
 -- list
--- element (if any) to map against
+-- elements to map against
 bitL :: Bits a => (t -> a -> b) -> [a] -> t -> [b]
 bitL f xs d =  map((f) d) xs
 
